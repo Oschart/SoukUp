@@ -1,8 +1,15 @@
 
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.util.Scanner;
 import java.util.Stack;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
 
-public class soukup {
+public class soukup extends JFrame {
 
     public static Cord src, targ, curr, nb;
     public static Stack<Cord> RO, RN, NB;
@@ -10,20 +17,43 @@ public class soukup {
     public static int ViaCount = 0, ViaCost = 3, CellCount = 0;
     public static Cord Grid[][];
 
-    public static void main(String[] args) {
-        //src = null, targ = null;
+    // For Grid Graphical Display
+    public static Board Chip;
+
+    public soukup() {
+        Scanner input = new Scanner(System.in);
+        System.out.println("Insert Grid Dimensions:");
+        N = input.nextInt();
+        M = input.nextInt();     // Board Dimensions
+        this.setLayout(new GridBagLayout());
+        this.setTitle("SoukUp");
+        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.setSize(450, 500);
+        this.setMinimumSize(new Dimension(450, 450));
+        this.setLocation(500, 100);
+
+        Chip = new Board(N, M);
+
+        GridBagConstraints format = new GridBagConstraints();
+
+        // Placing Components
+        format.weightx = 0.5;
+        format.fill = GridBagConstraints.HORIZONTAL;
+        format.gridx = 0;
+        format.gridy = 0;
+        this.add(Chip, format);
+
+        this.setVisible(true);
+
         RO = new Stack();
         RN = new Stack();
         NB = new Stack();
-//        Scanner input = new Scanner(System.in);
-//        System.out.println("Insert Grid Dimensions:");
-//        int N = input.nextInt(), M = input.nextInt();     // Board Dimensions
+
         Grid = new Cord[N][M];
         for (int i = 0; i < N; ++i) {
             for (int j = 0; j < M; ++j) {
                 Grid[i][j] = new Cord(i, j, 0, 0);
             }
-            System.out.println("");
         }
         getInput();
 
@@ -36,13 +66,14 @@ public class soukup {
     }
 
     public static void getInput() {
-//        Scanner in = new Scanner(System.in);
-//        System.out.println("Insert Source Cell x, y, and Metal Layer:");
-//        src = new Cord(in.nextInt(), in.nextInt(), in.nextInt(), 2);
-//        System.out.println("Insert Target Cell x, y, and Metal Layer:");
-//        targ = new Cord(in.nextInt(), in.nextInt(), in.nextInt(), 2);
-        src = new Cord(0, 0, 1, 2);
-        targ = new Cord(5, 5, 1, 2);
+        Scanner in = new Scanner(System.in);
+        System.out.println("Insert Source Cell x, y, and Metal Layer:");
+        src = new Cord(in.nextInt(), in.nextInt(), in.nextInt(), 2);
+        System.out.println("Insert Target Cell x, y, and Metal Layer:");
+        targ = new Cord(in.nextInt(), in.nextInt(), in.nextInt(), 0);
+        
+        Chip.Grid[src.x][src.y].setMetal(src.m);
+        Chip.Grid[targ.x][targ.y].setMetal(targ.m);
         src.S = 5;
         targ.S = 6;
         Grid[src.x][src.y] = src;
@@ -101,6 +132,7 @@ public class soukup {
                     if (nb.S <= 4) {
                         nb.S = traceB;
                     }
+                    System.out.println("Candidate = " + nb.x + ", " + nb.y + ", " + nb.S);
                     //System.out.println("Candidate = " + nb.x + ", " + nb.y);
                     return Step5();
                 } else if (nb.C == 0) {
@@ -109,6 +141,7 @@ public class soukup {
                     if (nb.S <= 4) {
                         nb.S = traceB;
                     }
+                    System.out.println("Candidate0 = " + nb.x + ", " + nb.y + ", " + nb.S);
                     RN.push(nb);
                 }
 
@@ -138,7 +171,6 @@ public class soukup {
 
     public static Boolean Step6() {
 
-        
         nb.C = 2;
         if (nb.S <= 4) {
             if (nb.x < curr.x) {
@@ -151,6 +183,7 @@ public class soukup {
                 nb.S = 4;
             }
         }
+        System.out.println("Candidate6 = " + nb.x + ", " + nb.y + ", " + nb.S);
         RO.push(nb);
         return Step7();
 
@@ -160,8 +193,10 @@ public class soukup {
         int dx = (nb.x > targ.x ? -1 : (nb.x < targ.x ? 1 : 0));
         int dy = (nb.y > targ.y ? -1 : (nb.y < targ.y ? 1 : 0));
         int metal = nb.m;
+        //int pS = nb.S;
         nb = Grid[nb.x + dx][nb.y + dy];
-
+        //nb.S = pS;
+        System.out.println("Candidate7 = " + nb.x + ", " + nb.y + ", " + nb.S);
         // Hit an obstacle
         if (nb.C == 2 || nb.m == 3 || (nb.m == 2 && metal == 2)) {
             return Step3();
@@ -183,14 +218,16 @@ public class soukup {
         int dy = (nb.S == 3 ? 1 : (nb.S == 4 ? -1 : 0));
         Cord par = nb, ch = Grid[nb.x + dx][nb.y + dy];
         while (ch.S != 5) {
+            System.out.println("CandidateR = " + ch.x + ", " + ch.y + ", " + ch.S);
             dx = (ch.S == 1 ? -1 : (ch.S == 2 ? 1 : 0));
             dy = (ch.S == 3 ? 1 : (ch.S == 4 ? -1 : 0));
 
-            ch.m++;
+            Chip.Grid[ch.x][ch.y].setMetal(++ch.m);
             // Via Condition
             if (ch.m != par.m || ch.S != par.S) {
                 ViaCount++;
                 ch.via = true;
+                Chip.Grid[ch.x][ch.y].setMetal(5);
             }
             CellCount++;
             par = ch;
@@ -208,4 +245,7 @@ public class soukup {
         return true;
     }
 
+    public static void main(String[] args) {
+        soukup router = new soukup();
+    }
 }
