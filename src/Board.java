@@ -20,7 +20,7 @@ public class Board extends JPanel{
         for (int i = 0; i < N; i++) {
             for (int j = 0; j < M; j++) {
                 this.Grid[i][j] = new Cell(0);
-                this.Grid[i][j].setCoordinates(i, j);
+                this.Grid[i][j].setCoordinates(j, i);
                 this.add(this.Grid[i][j]);
             }
         }
