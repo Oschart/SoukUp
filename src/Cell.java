@@ -11,8 +11,6 @@ public class Cell extends JButton {
     private Icon Empty, M1, M2, M3, Via;  
     private int x, y;
     
-    //constructs a cell with the board being its event listener 
-    //Decides whether or not the cell contains a ship part
     public Cell (int Metal){
         this.Metal = Metal;
         this.loadImages();
