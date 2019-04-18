@@ -24,7 +24,7 @@ public class Cell extends JButton {
     }
     
   
-    //sets a new type of ship for the cell
+    //sets a new Metal type for the cell
     public void setMetal (int Metal) {
         this.Metal = Metal;
         this.updateIcon();
