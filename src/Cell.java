@@ -25,15 +25,7 @@ public class Cell extends JButton {
         this.updateIcon();
     }
     
-    //constructs a cell with the board being its event listener 
-    //content indicates whether or not it has ship and the type of ship as well   
-    // 5 -->  Aircraft carrier
-    // 4 -->  Battleship
-    // 3 -->  Destroyer
-    // 2 -->  Submarine
-    // 1 -->  Patrol boat
-    // 0 -->  no Ship
-    
+  
     //sets a new type of ship for the cell
     public void setMetal (int Metal) {
         this.Metal = Metal;
