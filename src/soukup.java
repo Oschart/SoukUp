@@ -29,14 +29,21 @@ public class soukup extends JFrame {
         System.out.println("Insert Grid Dimensions:");
         N = input.nextInt();
         M = input.nextInt();     // Board Dimensions
-        this.setLayout(new GridBagLayout());
+        //this.setLayout(new GridBagLayout());
         this.setTitle("SoukUp");
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setSize(450, 500);
-        this.setMinimumSize(new Dimension(450, 450));
+        this.setMinimumSize(new Dimension(800, 700));
         this.setLocation(500, 100);
 
-        Chip = new Board(N, M);
+        Grid = new Cord[N][M];
+        for (int i = 0; i < N; ++i) {
+            for (int j = 0; j < M; ++j) {
+                Grid[i][j] = new Cord(j, i, 0, 0);
+            }
+        }
+        
+        Chip = new Board(N, M, Grid);
 
         GridBagConstraints format = new GridBagConstraints();
 
@@ -45,7 +52,8 @@ public class soukup extends JFrame {
         format.fill = GridBagConstraints.HORIZONTAL;
         format.gridx = 0;
         format.gridy = 0;
-        this.add(Chip, format);
+        //this.add(Chip, format);
+        this.add(Chip);
 
         this.setVisible(true);
 
@@ -53,12 +61,7 @@ public class soukup extends JFrame {
         RN = new Stack();
         NB = new Stack();
 
-        Grid = new Cord[N][M];
-        for (int i = 0; i < N; ++i) {
-            for (int j = 0; j < M; ++j) {
-                Grid[i][j] = new Cord(j, i, 0, 0);
-            }
-        }
+        
         getInput();
 
         //SRC
@@ -75,9 +78,7 @@ public class soukup extends JFrame {
         src = new Cord(in.nextInt(), in.nextInt(), in.nextInt(), 2);
         System.out.println("Insert Target Cell x, y, and Metal Layer:");
         targ = new Cord(in.nextInt(), in.nextInt(), in.nextInt(), 0);
-
-        Chip.Grid[src.y][src.x].setMetal(topLayer(src));
-        Chip.Grid[targ.y][targ.x].setMetal(topLayer(targ));
+        
         src.S = 5;
         targ.S = 6;
         Grid[src.y][src.x] = src;
@@ -94,15 +95,9 @@ public class soukup extends JFrame {
 
     public static Boolean Step3() {
         while (!RO.empty()) {
-            //System.out.println("NOT EMPTY");
             curr = RO.pop();
-            System.out.println("Candidate = " + curr.x + ", " + curr.y);
-//            Chip.Grid[curr.y][curr.x].setMetal(3);
-//            try {
-//                TimeUnit.SECONDS.sleep(1);
-//            } catch (InterruptedException ex) {
-//                Logger.getLogger(soukup.class.getName()).log(Level.SEVERE, null, ex);
-//            }
+            //System.out.println("Candidate = " + curr.x + ", " + curr.y);
+
             if (curr.x > 0) {
                 NB.push(Grid[curr.y][curr.x - 1]);
             }
@@ -118,8 +113,7 @@ public class soukup extends JFrame {
 
             while (!NB.empty()) {
                 nb = NB.pop();
-                //System.out.println("Candidate = " + nb.x + ", " + nb.y + ", " + nb.S);
-
+                
                 int traceB;
                 if (nb.x < curr.x) {
                     traceB = 2;
@@ -142,8 +136,6 @@ public class soukup extends JFrame {
                     if (nb.S <= 4) {
                         nb.S = traceB;
                     }
-                    System.out.println("Candidate1 = " + nb.x + ", " + nb.y + ", " + nb.S);
-                    //System.out.println("Candidate = " + nb.x + ", " + nb.y);
                     return Step5();
                 } else if (nb.C == 0) {
 
@@ -156,6 +148,7 @@ public class soukup extends JFrame {
                 }
 
             }
+            while(!NB.empty()) NB.pop();
             //Chip.Grid[curr.y][curr.x].setMetal(0);
         }
         return Step4();
@@ -193,7 +186,6 @@ public class soukup extends JFrame {
                 nb.S = 4;
             }
         }
-        System.out.println("Candidate6 = " + nb.x + ", " + nb.y + ", " + nb.S);
         RO.push(nb);
         return Step7();
 
@@ -208,9 +200,8 @@ public class soukup extends JFrame {
         }
         nb = Grid[nb.y + dy][nb.x + dx];
         int dis2 = abs(nb.x - targ.x) + abs(nb.y - targ.y);
-        System.out.println("Candidate7 = " + nb.x + ", " + nb.y + ", " + nb.S);
         // Hit an obstacle
-        if (nb.C == 2 || isObstacle(nb.S)) {
+        if (nb.C == 2 || isObstacle((dx != 0? 1: 3))) {
             return Step3();
         }
         // Reached Target
@@ -234,32 +225,34 @@ public class soukup extends JFrame {
         int dy = (nb.S == 3 ? 1 : (nb.S == 4 ? -1 : 0));
         Cord par = nb, ch = Grid[nb.y + dy][nb.x + dx];
         while (ch.S != 5) {
-            System.out.println("CandidateR = " + ch.x + ", " + ch.y + ", " + ch.S);
-            if (dy != 0) {
+            if (dy != 0) {  // If direction is vertical
                 ch.metal[1] = 1;
                 if (par.metal[1] == 0) {
+                    par.metal[1] = 2;   // Place a via
+                    ch.metal[1] = 2;
                     ViaCount++;
-                    Chip.Grid[par.y][par.x].setMetal(5);
+                    //Chip.Grid[par.y][par.x].setMetal(5);
                 }
-            } else if (dx != 0) {
-                if (par.metal[0] == 1 && ch.metal[0] == 0)
+            } else if (dx != 0) {   // If direction is horizontal
+                if (par.metal[0] > 0 && ch.metal[0] == 0)
                 {
+                    System.out.println("JOJOJO");
                     ch.metal[0] = 1;
                 }
-                else if(par.metal[2] == 1 && ch.metal[2] == 0)
+                else if(par.metal[2] > 0 && ch.metal[2] == 0)
                 {
                     ch.metal[2] = 1;
                 }
                 else 
                 {
-                    if(ch.metal[0] == 0) ch.metal[0] = 1;
-                    else ch.metal[2] = 1;
+                    if(ch.metal[0] == 0) ch.metal[0] = par.metal[0] = 2;
+                    else ch.metal[2] = par.metal[2] = 2;
                     ViaCount++;
-                    Chip.Grid[par.y][par.x].setMetal(5);
+                    //Chip.Grid[par.y][par.x].setMetal(5);
                 }
             }
-
-            Chip.Grid[ch.y][ch.x].setMetal(topLayer(ch));
+            //System.out.println("CandidateR = " + ch.x + ", " + ch.y + ", " + ch.S + " " + ch.metal[0] + " " + ch.metal[1] + " " + ch.metal[2]);
+            //Chip.Grid[ch.y][ch.x].setMetal(topLayer(ch));
 
             CellCount++;
             par = ch;
@@ -295,7 +288,7 @@ public class soukup extends JFrame {
     }
 
     public static Boolean sameDirection(int traceB) {
-        System.out.println("DIRECTION" + traceB);
+        
         switch (traceB) {
             case 1:
                 return nb.x < targ.x;
@@ -309,8 +302,9 @@ public class soukup extends JFrame {
     }
 
     public static Boolean isObstacle(int traceB) {
+        if(nb.metal[0] > 0 && nb.metal[2] > 0 && nb.metal[0] > 0) return true;
         if (traceB <= 2) {
-            return (nb.metal[0] == 1 || nb.metal[2] == 1);
+            return (nb.metal[0] > 0 && nb.metal[2] > 0);
         } else {
             return (nb.metal[1] == 1);
         }
