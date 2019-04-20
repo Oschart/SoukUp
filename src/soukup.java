@@ -83,7 +83,7 @@ public class soukup extends JFrame {
         }
         srcMetal--;     // To use it as 0-based index
         src = Grid[src.y][src.x];
-        
+
         src.C = 2;
         System.out.println("Insert Target Cell x, y, and Metal Layer:");
         targ = new Cord(in.nextInt(), in.nextInt());
@@ -96,7 +96,7 @@ public class soukup extends JFrame {
         }
         targMetal--;    // To use it as 0-based index
         targ = Grid[targ.y][targ.x];
-        
+
         targ.C = 0;
 
         src.S = 5;
@@ -124,16 +124,16 @@ public class soukup extends JFrame {
                 NB.pop();
             }
             // Add the viable neighbors of the current cell to the NB (neighbor) stack
-            if (curr.x > 0) {
+            if (curr.x > 0) {   // left neighbor
                 NB.push(Grid[curr.y][curr.x - 1]);
             }
-            if (curr.x < M - 1) {
+            if (curr.x < M - 1) {   // right neighbor
                 NB.push(Grid[curr.y][curr.x + 1]);
             }
-            if (curr.y > 0) {
+            if (curr.y > 0) {       // up neighbor
                 NB.push(Grid[curr.y - 1][curr.x]);
             }
-            if (curr.y < N - 1) {
+            if (curr.y < N - 1) {   // down neighbor
                 NB.push(Grid[curr.y + 1][curr.x]);
             }
 
@@ -161,12 +161,12 @@ public class soukup extends JFrame {
                 }
                 // If neighbor is in the same direction as target
                 if (nb.C <= 1 && sameDirection(traceB)) {
-
+                    // Move to step 5
                     return Step5();
                 } else if (nb.C == 0) {
                     nb.C = 1;
                     if (nb.S <= 4) {
-                        nb.S = traceB;
+                        nb.S = traceB;  // Set traceback code
                     }
                     RN.push(nb);
                 }
@@ -228,6 +228,7 @@ public class soukup extends JFrame {
         if (nb.y + dy < 0 || nb.y + dy > N - 1 || nb.x + dx < 0 || nb.x + dx > M - 1) {
             return Step3();
         }
+        // Fetch Next Neighbor in the same direction
         nb = Grid[nb.y + dy][nb.x + dx];
         int dis2 = abs(nb.x - targ.x) + abs(nb.y - targ.y);
 
@@ -256,10 +257,15 @@ public class soukup extends JFrame {
         targ.metal[targMetal] = 1;
         CellCount = ViaCount = 0;
         nb.S = traceB;
-        int dx = (nb.S == 1 ? -1 : (nb.S == 2 ? 1 : 0));
+        // Horizontal step
+        int dx = (nb.S == 1 ? -1 : (nb.S == 2 ? 1 : 0)); 
+        // Vertical step
         int dy = (nb.S == 3 ? 1 : (nb.S == 4 ? -1 : 0));
-        Cord par = nb, ch = Grid[nb.y + dy][nb.x + dx];     // Parent and child cells
+        // Parent and child cells
+        Cord par = nb, ch = Grid[nb.y + dy][nb.x + dx];     
+        // Save the previously placed metal to optimize for vias
         int prevMetal = targMetal;
+        // Mark the target cell to rip it in case user decides to
         par.ripTile[targMetal] = 1;
         while (ch.S != 5) {
             if (dy != 0) {  // If direction is vertical
@@ -273,17 +279,16 @@ public class soukup extends JFrame {
                     ViaCount++;
                 }
             } else if (dx != 0) {   // If direction is horizontal
-                if (prevMetal == 0 && ch.metal[0] == 0) {
+                if (prevMetal == 0 && ch.metal[0] == 0) {   // Keep using same metal 1 (no via)
                     ch.metal[0] = 1;
                     ch.ripTile[0] = 1;
-                } else if (prevMetal == 2 && ch.metal[2] == 0) {
+                } else if (prevMetal == 2 && ch.metal[2] == 0) {    // Keep using same metal 3 (no via)
                     ch.metal[2] = 1;
                     ch.ripTile[2] = 1;
                 } else {    // A Via is necessary
                     if (ch.metal[0] == 0) {     // Metal 1
                         if (ch.metal[prevMetal] == 0 && prevMetal != 1) {
                             ch.metal[0] = ch.metal[prevMetal] = 2;
-
                             ch.ripTile[prevMetal] = 2;
                         } else {
                             par.metal[0] = par.metal[prevMetal] = 2;
@@ -310,7 +315,7 @@ public class soukup extends JFrame {
                 }
             }
             CellCount++;
-            par = ch;
+            par = ch;   // Child becomes next parent
             dx = (ch.S == 1 ? -1 : (ch.S == 2 ? 1 : 0));
             dy = (ch.S == 3 ? 1 : (ch.S == 4 ? -1 : 0));
             ch = Grid[ch.y + dy][ch.x + dx];
@@ -354,6 +359,7 @@ public class soukup extends JFrame {
         System.out.println("Elapsed Time = " + elapsedTime / 1000.0 + " ms");
         JOptionPane.showMessageDialog(null, "    Connection Found!\n Cost = " + Cost + "\n Elapsed Time = " + elapsedTime / 1000.0 + " ms", "Success", JOptionPane.INFORMATION_MESSAGE);
 
+        // Reset the grid codes (S and C)
         reset();
         // Empty the stacks
         while (!NB.empty()) {
@@ -377,7 +383,7 @@ public class soukup extends JFrame {
         ripRoute(x);
         return true;
     }
-    
+
     // Reset the codes of the grid
     public static void reset() {
         for (int i = 0; i < N; ++i) {

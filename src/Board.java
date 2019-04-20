@@ -16,7 +16,7 @@ public class Board extends JPanel {
 
         this.dX = min((700 - 2 * M) / M, (600 - 2 * N) / N);
         this.dY = dX;   // in order to have square cells
-        
+
         this.N = N;
         this.M = M;
         this.Grid = Grid;       // Board takes a reference to the original grid
@@ -31,30 +31,27 @@ public class Board extends JPanel {
 
     @Override
     public void paintComponent(Graphics g) {
-        
+
         for (int x = 2, j = 0; j < M; x += 2 + dX, ++j) {
             for (int y = 2, i = 0; i < N; y += 2 + dY, ++i) {
-                if(Grid[i][j].metal[0] + Grid[i][j].metal[1] + Grid[i][j].metal[2] == 0)
-                {
+                if (Grid[i][j].metal[0] + Grid[i][j].metal[1] + Grid[i][j].metal[2] == 0) {
                     g.setColor(C0);
                     g.fillRect(x, y, dX, dY);
-                }
-                else 
-                {
-                    for(int k = 0; k <= 2; ++k)
-                    if(Grid[i][j].metal[k] > 0)
-                    {
-                        g.setColor((k == 0? C1: k == 1? C2: C3));
-                        g.fillRect(x, y, dX, dY);
-                        if(Grid[i][j].metal[k] == 2) {  // Cell contains a via
-                            g.setColor(CVia);
-                            g.fillOval(x + dX/4, y + dY/4, dX/2, dY/2);
+                } else {
+                    for (int k = 0; k <= 2; ++k) {
+                        if (Grid[i][j].metal[k] > 0) {
+                            g.setColor((k == 0 ? C1 : k == 1 ? C2 : C3));
+                            g.fillRect(x, y, dX, dY);
+                            if (Grid[i][j].metal[k] == 2) {  // Cell contains a via
+                                g.setColor(CVia);
+                                g.fillOval(x + dX / 4, y + dY / 4, dX / 2, dY / 2);
+                            }
                         }
                     }
                 }
             }
         }
-        
+
         repaint();
     }
 
