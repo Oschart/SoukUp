@@ -1,0 +1,12 @@
+Grid Dimensions: 20x1
+ViaCost = 10
+
+net1:
+src x, y, layer: 0 5 1
+targ x, y, layer: 0 10 1
+
+net2:
+src x, y, layer: 0 15 1
+targ x, y, layer: 0 0 1
+
+net2 cannot be routed (failure will be reported)

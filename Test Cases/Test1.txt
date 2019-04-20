@@ -1,0 +1,30 @@
+Grid Dimensions: 30x30
+ViaCost = 10
+
+net1:
+src x, y, layer: 5 5 1
+targ x, y, layer: 20 20 1
+
+net2:
+src x, y, layer: 5 5 1
+targ x, y, layer: 20 20 1
+
+net3:
+src x, y, layer: 3 7 3
+targ x, y, layer: 23 7 2
+
+net4:
+src x, y, layer: 3 18 1
+targ x, y, layer: 23 18 1
+
+net5:
+src x, y, layer: 3 10 3
+targ x, y, layer: 23 10 2
+
+net6:
+src x, y, layer: 3 12 3
+targ x, y, layer: 23 12 3
+
+net7:
+src x, y, layer: 12 2 2
+targ x, y, layer: 12 22 2
